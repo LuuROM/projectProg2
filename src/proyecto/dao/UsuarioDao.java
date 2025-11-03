@@ -14,7 +14,7 @@ public class UsuarioDao implements ICRUD<Usuario> {
     private static Connection conexion;
 
     public UsuarioDao() {
-        this.conexion = ConexionDB.getinstancia().getCon();
+        this.conexion = ConexionDB.getInstancia().getCon();
     }
 
     private Usuario mapearUsuario(ResultSet rs) throws SQLException {

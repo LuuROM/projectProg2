@@ -19,7 +19,7 @@ public class PedidoDao implements ICRUD<Pedido> {
     private final UsuarioDao usuarioDao;
   
     public PedidoDao(){
-        this.conexion= ConexionDB.getinstancia().getCon();
+        this.conexion= ConexionDB.getInstancia().getCon();
         this.usuarioDao = new UsuarioDao();
     }
     

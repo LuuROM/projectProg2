@@ -21,7 +21,7 @@ public class proyectointeger {
     
     public static void main(String[] args) {
         admin.setTienda(tienda);
-        ConexionDB.getinstancia(); // conexión SQLite
+        ConexionDB.getInstancia(); // conexión SQLite
         int opcion = 0;
 
         try {

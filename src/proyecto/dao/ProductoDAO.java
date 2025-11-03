@@ -16,7 +16,7 @@ public class ProductoDAO implements ICRUD<Producto> {
 
     public ProductoDAO() {
         // Obtiene la única conexión activa (Singleton)
-        this.conexion = ConexionDB.getinstancia().getCon();
+        this.conexion = ConexionDB.getInstancia().getCon();
     }
     
     // Método traductor: Convierte una fila de la DB (ResultSet) a un objeto Producto de Java.

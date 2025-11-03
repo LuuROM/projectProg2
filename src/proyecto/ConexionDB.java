@@ -4,13 +4,13 @@ import java.sql.*;
 
 
 public class ConexionDB {
-    private static final String conexion_base_Datos = "jdbc:sqlite:TiendaLunic.db";
+    private static final String conexion_base_datos = "jdbc:sqlite:TiendaLunic.db";
     private static ConexionDB instancia ;
     private Connection con;
 
     public ConexionDB() {
         try {
-            con = DriverManager.getConnection(conexion_base_Datos);
+            con = DriverManager.getConnection(conexion_base_datos);
             crearTablas();
             System.out.println("Conexion exitosa.");
         } catch (SQLException e) {
@@ -26,7 +26,7 @@ public class ConexionDB {
         this.con = con;
     }
     
-    public static ConexionDB getinstancia() {
+    public static ConexionDB getInstancia() {
         if(instancia == null){
             instancia = new ConexionDB();   
         } 
