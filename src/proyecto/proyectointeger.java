@@ -537,8 +537,7 @@ public class proyectointeger {
             return;
         }
 
-        Scanner scs = new Scanner(System.in);
-
+     
         // Elección de entrega
         do {
             System.out.println("Desea que el pedido sea enviado a su dirección o retirarlo por sucursal?");
