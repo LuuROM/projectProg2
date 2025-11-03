@@ -212,7 +212,7 @@ public class UsuarioDao implements ICRUD<Usuario> {
         }
         return null;
     }
-    
+  
     
     public boolean existeDni(String dni) throws Exception {
         String sql = "SELECT COUNT(*) FROM " + TABLE_NAME + " WHERE dni = ?";
