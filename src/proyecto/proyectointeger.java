@@ -457,6 +457,7 @@ public class proyectointeger {
     }
 
     private static void agregarProductoACarrito(Usuario usuario) throws Exception {
+        boolean seAgrego = false;
         if (usuario instanceof Cliente) {
             int cantidad;
             try {
@@ -471,20 +472,32 @@ public class proyectointeger {
                 }
                 System.out.print("Ingrese la cantidad a agregar: ");
                 cantidad = sc.nextInt();
+                
                 if (cantidad <= 0) {
                     System.out.println("Cantidad invalida");
                     return;
                 }
-                ///modificacion del stock y mostrar la cantidad restante de stock
-                if (p.getStock() >= cantidad) {
-                    ((Cliente) usuario).agregarProducto(p, cantidad);
-                // Actualizar stock correctamente
-                    p.setStock(p.getStock() - cantidad);
-                    productoDao.modificar(p);
+                for (Producto pr: ((Cliente) usuario).getCarrito().getProductos()) {
+                    if (pr.getId() == p.getId()) {
+                        pr.setStock(pr.getStock()+cantidad);
+                        seAgrego = true;
+                    }
+                }
+                if (seAgrego) {
                     System.out.println("Se agregaron " + cantidad + " unidades de " + p.getNombre() + " de " + p.getMaterial() + " al carrito");
                 } else {
-                    System.out.println("No hay suficiente stock disponible.");
+                    ///modificacion del stock y mostrar la cantidad restante de stock
+                    if (p.getStock() >= cantidad) {
+                        ((Cliente) usuario).agregarProducto(p, cantidad);
+                    // Actualizar stock correctamente
+                        p.setStock(p.getStock() - cantidad);
+                        productoDao.modificar(p);
+                        System.out.println("Se agregaron " + cantidad + " unidades de " + p.getNombre() + " de " + p.getMaterial() + " al carrito");
+                    } else {
+                        System.out.println("No hay suficiente stock disponible.");
+                    }
                 }
+                
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }
@@ -883,13 +896,14 @@ public class proyectointeger {
     }
     
     public static void listaPedidos() throws Exception {
-        System.out.println("=== PEDIDOS ===");
+        
         List<Pedido> pedidos = pedidoDao.buscarTodo();
         
         if (pedidos.isEmpty()) {
+            System.out.println("No hay pedidos.");
             return;
         }
-
+        System.out.println("=== PEDIDOS ===");
         for (Pedido p: pedidos) {
             p.mostrarInfo();;
         }
@@ -917,6 +931,15 @@ public class proyectointeger {
                     pedido.setEstado("Entregado");
                     pedidoDao.modificar(pedido);
                 } else {
+                    List<Producto> productosBase = productoDao.buscarTodo();
+                    for (Producto p: pedido.getProductos()) {
+                        for (Producto pr: productosBase) {
+                            if (pr.getId() == p.getId()) {
+                                p.setStock(pr.getStock()+p.getStock());
+                                productoDao.modificar(p);
+                            }
+                        }
+                    }
                     pedidoDao.eliminar(id);
                 }
             }

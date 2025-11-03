@@ -4,9 +4,13 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/home/luu/proyectonuevo/src/proyecto/proyectointeger.java</file>
+            <file>file:/home/luu/proyectonuevo/src/proyecto/ConexionDB.java</file>
             <file>file:/home/luu/proyectonuevo/src/proyecto/interfaces/ICRUD.java</file>
             <file>file:/home/luu/proyectonuevo/src/proyecto/dao/PedidoDao.java</file>
             <file>file:/home/luu/proyectonuevo/src/proyecto/dao/ProductoDAO.java</file>
+            <file>file:/home/luu/proyectonuevo/src/proyecto/dao/UsuarioDao.java</file>
+            <file>file:/home/luu/proyectonuevo/src/proyecto/modelos/Administrador.java</file>
+            <file>file:/home/luu/proyectonuevo/src/proyecto/modelos/TiendaDeMates.java</file>
         </group>
     </open-files>
 </project-private>
