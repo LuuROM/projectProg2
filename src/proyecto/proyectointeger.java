@@ -406,7 +406,7 @@ public class proyectointeger {
                 sc.nextLine(); // limpiar buffer
                 switch (opc) {
                     case 1 -> catalogo();
-                    case 2 -> agregarProductoACarrito(carrito);
+                    case 2 -> agregarProductoACarrito(usuario);
                     case 3 -> carrito.mostrarProductos();
                     case 4 -> finalizarCompra(usuario);
                     case 5 -> System.out.println("Volviendo al menu principal...");
@@ -436,38 +436,39 @@ public class proyectointeger {
         }
     }
 
-    private static void agregarProductoACarrito(CarritoDeCompra carrito) throws Exception {
-        int cantidad;
-        try {
-            System.out.print("Ingrese el ID del producto a agregar: ");
-            int id = sc.nextInt();
-            sc.nextLine();
-            Producto p = productoDao.buscar(id);
+    private static void agregarProductoACarrito(Usuario usuario) throws Exception {
+        if (usuario instanceof Cliente) {
+            int cantidad;
+            try {
+                System.out.print("Ingrese el ID del producto a agregar: ");
+                int id = sc.nextInt();
+                sc.nextLine();
+                Producto p = productoDao.buscar(id);
             
-            if (p == null) {
-                System.out.println("Producto no encontrado");
-                return;
-            }
-            System.out.print("Ingrese la cantidad a agregar: ");
-            cantidad = sc.nextInt();
-            if (cantidad <= 0) {
-                System.out.println("Cantidad invalida");
-                return;
-            }
-            ///modificacion del stock y mostrar la cantidad restante de stock
-            if (p.getStock() >= cantidad) {
-                carrito.agregarProducto(p, cantidad);
-               // Actualizar stock correctamente
-                p.setStock(p.getStock() - cantidad);
-                productoDao.modificar(p); //CORRECTO para stock
-                  System.out.println("Se agregaron " + cantidad + " unidades de " + p.getNombre() + " de " + p.getMaterial() + " al carrito");
-                }else {
-                System.out.println("No hay suficiente stock disponible.");
+                if (p == null) {
+                    System.out.println("Producto no encontrado");
+                    return;
                 }
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+                System.out.print("Ingrese la cantidad a agregar: ");
+                cantidad = sc.nextInt();
+                if (cantidad <= 0) {
+                    System.out.println("Cantidad invalida");
+                    return;
+                }
+                ///modificacion del stock y mostrar la cantidad restante de stock
+                if (p.getStock() >= cantidad) {
+                    ((Cliente) usuario).agregarProducto(p, cantidad);
+                // Actualizar stock correctamente
+                    p.setStock(p.getStock() - cantidad);
+                    productoDao.modificar(p);
+                    System.out.println("Se agregaron " + cantidad + " unidades de " + p.getNombre() + " de " + p.getMaterial() + " al carrito");
+                } else {
+                    System.out.println("No hay suficiente stock disponible.");
+                }
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        }  
     }
 
     private static void finalizarCompra(Usuario usuario) throws Exception {
@@ -545,6 +546,7 @@ public class proyectointeger {
                     System.out.println("Ha ingresado una opción inválida. Vuelva a intentar");
                 }
             } while (opc < 1 || opc > 2);
+            sc.nextLine();
             // Acciones segun metodo de pago
             if (opc == 1) {
                 do {
