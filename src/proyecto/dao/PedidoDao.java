@@ -33,7 +33,7 @@ public class PedidoDao implements ICRUD<Pedido> {
         return new Pedido(
             rs.getInt("id"),
             usuario,
-            productos, // lista de productos omitida (se puede llenar en otra consulta)
+            productos,
             rs.getDouble("total"),
             rs.getString("metodo_pago"),
             rs.getString("estado")
@@ -149,9 +149,11 @@ public class PedidoDao implements ICRUD<Pedido> {
         try (Statement stmt = conexion.createStatement();
             ResultSet rs = stmt.executeQuery(sql)) {
             try {
-                pedidos.add(mapearPedido(rs));
+                while (rs.next()) {
+                    pedidos.add(mapearPedido(rs));
+                }
             } catch (Exception e) {
-                System.err.println("No se pudo mapear pedido con ID " + rs.getInt("id") + ": " + e.getMessage());
+                System.err.println("No hay pedidos registrados.");
             }
         } catch (SQLException e) {
             throw new Exception("Error al buscar todos los usuarios: " + e.getMessage());

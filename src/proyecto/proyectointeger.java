@@ -615,7 +615,7 @@ public class proyectointeger {
                     System.out.println("Ha ingresado una opción inválida. Vuelva a intentar");
                 }
             } while (opc < 1 || opc > 3);
-            
+            sc.nextLine();
             // Acciones segun metodo de pago
             if (opc == 1) {
                 System.out.println("Usted eligió pagar en efectivo.");
@@ -718,7 +718,7 @@ public class proyectointeger {
             System.out.println("6. Lista de clientes");
             System.out.println("7. Pedidos");
             System.out.println("8. Volver al menú principal");
-            System.out.print("Seleccione una opcion: ");
+            System.out.println("Seleccione una opcion: ");
             try {
                 opc = sc.nextInt();
                 sc.nextLine();
@@ -825,7 +825,6 @@ public class proyectointeger {
             Producto producto = productoDao.buscar(id);
             if (producto != null) {
                 admin.eliminarProducto(id);
-                System.out.println("Producto eliminado correctamente.");
             } else {
                 System.out.println("No se encontró ningún producto con ese ID.");
             }
@@ -879,10 +878,8 @@ public class proyectointeger {
     public static void listaPedidos() throws Exception {
         System.out.println("=== PEDIDOS ===");
         List<Pedido> pedidos = pedidoDao.buscarTodo();
- 
         
         if (pedidos.isEmpty()) {
-            System.out.println("No hay pedidos registrados.");
             return;
         }
 
