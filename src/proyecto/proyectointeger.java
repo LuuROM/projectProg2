@@ -44,7 +44,8 @@ public class proyectointeger {
             } while (opcion != 4);
         } catch (Exception e) {
             System.out.println("Error inesperado: " + e.getMessage());
-        }
+        } 
+        ConexionDB.getInstancia().closeConnection();
     }
 
     public static void mostrarMenuPrincipal() {
@@ -102,10 +103,9 @@ public class proyectointeger {
 
     private static Usuario iniciarSesion(){
         Usuario usuario = null;
-        Scanner asc = new Scanner(System.in);
         System.out.println("======================");
         System.out.println("Ingrese su email: ");
-        String email= asc.nextLine().trim();
+        String email= sc.nextLine().trim();
         try {
             usuario = usuarioDao.buscarPorEmail(email);
             if (usuario == null){
@@ -136,7 +136,7 @@ public class proyectointeger {
     //Mismo metodo para cliente normal y cliente vip
     private static void registrarCliente() {
         sc.nextLine();
-        String nombre, apellido, email, direccion, metodoDePago, telefono, dni, respuesta, contrasenia;
+        String nombre, apellido, email, direccion, telefono, dni, respuesta, contrasenia, numTarjeta;
         int opcion;
         double cuota;
         Usuario usuario;
@@ -199,11 +199,20 @@ public class proyectointeger {
                         System.out.println("Ha ingresado una opción inválida. Vuelva a intentar");
                     }
                 } while (opcion < 1 || opcion > 2);
-                System.out.println("Ha realizado su pago con éxito.");
                 sc.nextLine();
+                do {
+                    System.out.print("Ingrese los últimos 4 dígitos de su tarjeta: ");
+                    numTarjeta = sc.nextLine();
+                    if (numTarjeta.length() != 4) {
+                        System.out.println("Cantidad de números inválida. Vuelva a intentar.");
+                    }
+                } while (numTarjeta.length() != 4);
+                System.out.println("Pago realizado con tarjeta terminada en " + numTarjeta + ".");
+              
+                System.out.println("Ha realizado su pago con éxito.");
+                
                 System.out.print("Ingrese una contraseña para su cuenta: ");
                 contrasenia = sc.nextLine();
-                
                 
                 usuario = new ClienteVip( direccion,telefono,dni, nombre,apellido,email, 0,new CarritoDeCompra(), contrasenia);
                 System.out.println("Cuenta registrada como cliente VIP.");
@@ -264,7 +273,6 @@ public class proyectointeger {
             if (nuevoTelefono.isEmpty()) {
                 System.out.println("No se puede ingresar un teléfono vacío. El teléfono permanece sin modificaciones.");
             } else {
-                UsuarioDao usuarioDao = new UsuarioDao();
                 usuarioDao.modificar(usuario, nuevoTelefono);
                 System.out.println("Teléfono modificado correctamente.");
             }
