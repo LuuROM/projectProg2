@@ -16,19 +16,24 @@ import proyecto.modelos.Usuario;
 public class PedidoDao implements ICRUD<Pedido> {
     private final Connection conexion;
     private static final String TABLE_NAME = "Pedidos";
-    private static UsuarioDao usuarioDao;
+    private final UsuarioDao usuarioDao;
   
     public PedidoDao(){
         this.conexion= ConexionDB.getinstancia().getCon();
+        this.usuarioDao = new UsuarioDao();
     }
     
     private Pedido mapearPedido(ResultSet rs) throws SQLException, Exception {
         int usuarioId = rs.getInt("usuario_id");
         Usuario usuario = usuarioDao.buscar(usuarioId);
+        if (usuario == null) {
+            throw new Exception("Usuario con ID " + usuarioId + " no encontrado para el pedido " + rs.getInt("id"));
+        }
+        List<Producto> productos = obtenerProductosDelPedido(rs.getInt("id"));
         return new Pedido(
             rs.getInt("id"),
             usuario,
-            null, // lista de productos omitida (se puede llenar en otra consulta)
+            productos, // lista de productos omitida (se puede llenar en otra consulta)
             rs.getDouble("total"),
             rs.getString("metodo_pago"),
             rs.getString("estado")
@@ -41,7 +46,7 @@ public class PedidoDao implements ICRUD<Pedido> {
         if (pedido.getTotal() <= 0){
             throw new DatosInvalidosException("El total del pedido deber ser positivo");
         }
-        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd  HH;mm;ss");
+        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss");
         String fechaStr = sdf.format(pedido.getFechaPedido() != null ? pedido.getFechaPedido() : new Date());
       
         String sql = "INSERT INTO " + TABLE_NAME + " (usuario_id, usuario_email, fecha_pedido, total, metodo_pago, estado) VALUES (?,?,?,?,?,?)";
@@ -62,10 +67,21 @@ public class PedidoDao implements ICRUD<Pedido> {
                     }
                 }
             }
-            System.out.println(" Pedido registrado con ID: " + pedido.getId());
+        } 
+        
+        String sqlProductos = "INSERT INTO pedido_producto (pedido_id, producto_id, cantidad) VALUES (?,?,?)";
+        try (PreparedStatement stProd = conexion.prepareStatement(sqlProductos)) {
+            for (Producto p : pedido.getProductos()) {
+                stProd.setInt(1, pedido.getId());
+                stProd.setInt(2, p.getId());
+                stProd.setInt(3, p.getStock());
+                stProd.addBatch();
+            }
+            stProd.executeBatch();
         } catch (SQLException e) {
-            throw new Exception("Error al registrar el pedido: " + e.getMessage());
+            throw new Exception("Error al guardar los productos del pedido: " + e.getMessage());
         }
+            System.out.println(" Pedido registrado con ID: " + pedido.getId());
     }
     
     @Override
@@ -84,7 +100,7 @@ public class PedidoDao implements ICRUD<Pedido> {
         }
         System.out.println("Pedido ID "+ pedido.getId() + " modificado a estado:" + pedido.getEstado());
     } catch (SQLException e){
-        throw new Exception("Error al modificar peidod ;" + e.getMessage());
+        throw new Exception("Error al modificar pedido ;" + e.getMessage());
     }
     
 }
@@ -132,15 +148,43 @@ public class PedidoDao implements ICRUD<Pedido> {
         String sql = "SELECT * FROM " + TABLE_NAME;
         try (Statement stmt = conexion.createStatement();
             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
+            try {
                 pedidos.add(mapearPedido(rs));
+            } catch (Exception e) {
+                System.err.println("No se pudo mapear pedido con ID " + rs.getInt("id") + ": " + e.getMessage());
             }
         } catch (SQLException e) {
             throw new Exception("Error al buscar todos los usuarios: " + e.getMessage());
+        } finally {
+            return pedidos;
         }
-        return pedidos;
     }
+    
     // Método propio de PedidoDao
+    private List<Producto> obtenerProductosDelPedido(int pedidoId) throws Exception {
+    List<Producto> productos = new ArrayList<>();
+    String sql = "SELECT p.*, pp.cantidad FROM Productos p " +
+                 "JOIN pedido_producto pp ON p.id = pp.producto_id " +
+                 "WHERE pp.pedido_id = ?";
+
+    try (PreparedStatement st = conexion.prepareStatement(sql)) {
+        st.setInt(1, pedidoId);
+        try (ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                Producto prod = new Producto(
+                    rs.getString("material"),
+                    rs.getString("color"),
+                    rs.getString("nombre"),
+                    rs.getInt("cantidad"),
+                    rs.getInt("id"),
+                    rs.getDouble("precio")
+                );
+                productos.add(prod);
+            }
+        }
+    }
+    return productos;
+}
 
 
 }

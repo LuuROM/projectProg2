@@ -1,4 +1,5 @@
 package proyecto;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -191,6 +192,15 @@ public class proyectointeger {
             } while (!respuesta.equalsIgnoreCase("s") && !respuesta.equalsIgnoreCase("n"));
 
             if (respuesta.equalsIgnoreCase("s")) {
+                do { 
+                    System.out.println("Seleccione su método de pago:\n1. Débito\n2. Crédito");
+                    opcion = sc.nextInt();
+                    if (opcion < 1 || opcion > 2) {
+                        System.out.println("Ha ingresado una opción inválida. Vuelva a intentar");
+                    }
+                } while (opcion < 1 || opcion > 2);
+                System.out.println("Ha realizado su pago con éxito.");
+                sc.nextLine();
                 System.out.print("Ingrese una contraseña para su cuenta: ");
                 contrasenia = sc.nextLine();
                 
@@ -204,7 +214,7 @@ public class proyectointeger {
 
             // Guarda el usuario en la base de datos
             usuarioDao.agregar(usuario);
-            menuCompra(usuario);
+            menuClienteRegistrado(usuario);
 
         } catch (InputMismatchException e) {
             System.out.println("Error: Ingrese números válidos para Teléfono y DNI.");
@@ -396,9 +406,10 @@ public class proyectointeger {
 
             System.out.println("1. Ver catalogo");
             System.out.println("2. Agregar producto al carrito");
-            System.out.println("3. Ver carrito");
-            System.out.println("4. Finalizar compra");
-            System.out.println("5. Volver al menu principal");
+            System.out.println("3. Eliminar producto del carrito");
+            System.out.println("4. Ver carrito");
+            System.out.println("5. Finalizar compra");
+            System.out.println("6. Volver al menu principal");
             System.out.println("Seleccione una opcion: ");
 
             try {
@@ -407,9 +418,10 @@ public class proyectointeger {
                 switch (opc) {
                     case 1 -> catalogo();
                     case 2 -> agregarProductoACarrito(usuario);
-                    case 3 -> carrito.mostrarProductos();
-                    case 4 -> finalizarCompra(usuario);
-                    case 5 -> System.out.println("Volviendo al menu principal...");
+                    case 3 -> eliminarProductoDeCarrito(usuario);
+                    case 4 -> carrito.mostrarProductos();
+                    case 5 -> finalizarCompra(usuario);
+                    case 6 -> System.out.println("Volviendo al menu principal...");
                     default -> System.out.println("Opcion invalida.");
                 }
             } catch (InputMismatchException e) {
@@ -418,7 +430,7 @@ public class proyectointeger {
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }
-        } while (opc != 5);
+        } while (opc != 6);
     }
 
 
@@ -467,6 +479,24 @@ public class proyectointeger {
                 }
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
+            }
+        }  
+    }
+    
+    private static void eliminarProductoDeCarrito(Usuario usuario) throws Exception {
+        if (usuario instanceof Cliente) {
+            System.out.print("Ingrese el item del producto a eliminar: ");
+            int index = sc.nextInt();
+            index = index - 1;
+            if (index >= ((Cliente) usuario).getCarrito().getProductos().size() || index < 0) {
+                System.out.println("Item de producto inválido. El carrito permanece sin cambios.");
+            } else {
+                Producto p = ((Cliente) usuario).getCarrito().getProductos().get(index);
+                ((Cliente) usuario).eliminarProducto(p);
+                Producto productoEncontrado = productoDao.buscar(p.getId());
+                p.setStock(p.getStock() + productoEncontrado.getStock());
+                productoDao.modificar(p);
+                System.out.println("Se eliminaron todas las unidades de " + p.getNombre() + " de " + p.getMaterial());
             }
         }  
     }
@@ -557,7 +587,7 @@ public class proyectointeger {
                     }
                 } while (numTarjeta.length() != 4);
                 System.out.println("Pago realizado con tarjeta terminada en " + numTarjeta + ".");
-                nuevoPedido = new Pedido(usuario, carrito.getProductos(), totalFinal, "Débito", "Pagado y Pendiente de envío");
+                nuevoPedido = new Pedido(usuario, new ArrayList<>(carrito.getProductos()), totalFinal, "Débito", "Pagado y Pendiente de envío");
             } else {
                 do {
                     System.out.print("Ingrese los últimos 4 dígitos de su tarjeta de crédito: ");
@@ -576,8 +606,7 @@ public class proyectointeger {
                 System.out.println("Pago realizado en " + opc + " cuotas sin interés.");
             }
             // Registrar pedido en la base de datos
-            nuevoPedido = new Pedido(usuario, carrito.getProductos(), totalFinal, "Crédito", "Pagado y Pendiente de envío");
-            pedidoDao.agregar(nuevoPedido);
+            nuevoPedido = new Pedido(usuario, new ArrayList<>(carrito.getProductos()), totalFinal, "Crédito", "Pagado y Pendiente de envío");
         } else {
             do {
                 System.out.println("Seleccione su método de pago:\n1. Efectivo\n2. Débito\n3. Crédito");
@@ -592,8 +621,7 @@ public class proyectointeger {
                 System.out.println("Usted eligió pagar en efectivo.");
                 System.out.println("Por favor acérquese al local para pagar y retirar su compra.");
                 // Registrar pedido en la base de datos
-                nuevoPedido = new Pedido(usuario, carrito.getProductos(), totalFinal, "Efectivo", "Pendiente de pago y Pendiente de retiro");
-                pedidoDao.agregar(nuevoPedido);
+                nuevoPedido = new Pedido(usuario, new ArrayList<>(carrito.getProductos()), totalFinal, "Efectivo", "Pendiente de pago y Pendiente de retiro");
             } else if (opc == 2) {
                 do {
                     System.out.print("Ingrese los últimos 4 dígitos de su tarjeta de débito: ");
@@ -604,8 +632,7 @@ public class proyectointeger {
                 } while (numTarjeta.length() != 4);
                 System.out.println("Pago realizado con tarjeta terminada en " + numTarjeta + ".");
                 // Registrar pedido en la base de datos
-                nuevoPedido = new Pedido(usuario, carrito.getProductos(), totalFinal, "Débito","Pagado y Pendiente de retiro");
-                pedidoDao.agregar(nuevoPedido);
+                nuevoPedido = new Pedido(usuario, new ArrayList<>(carrito.getProductos()), totalFinal, "Débito","Pagado y Pendiente de retiro");
             } else {
                 do {
                     System.out.print("Ingrese los últimos 4 dígitos de su tarjeta de crédito: ");
@@ -623,12 +650,12 @@ public class proyectointeger {
                 } while (opc != 1 && opc != 3 && opc != 6);
                 System.out.println("Pago realizado en " + opc + " cuotas sin interés.");
                 // Registrar pedido en la base de datos
-                nuevoPedido = new Pedido(usuario, carrito.getProductos(), totalFinal, "Crédito", "Pagado y Pendiente de retiro");
-                pedidoDao.agregar(nuevoPedido);
+                nuevoPedido = new Pedido(usuario, new ArrayList<>(carrito.getProductos()), totalFinal, "Crédito", "Pagado y Pendiente de retiro");
             }
         }
         
 
+        pedidoDao.agregar(nuevoPedido);
         System.out.println("===================================");
         System.out.println("Pago confirmado correctamente");
         System.out.println("Su pedido ha sido procesado con éxito.");
@@ -852,7 +879,8 @@ public class proyectointeger {
     public static void listaPedidos() throws Exception {
         System.out.println("=== PEDIDOS ===");
         List<Pedido> pedidos = pedidoDao.buscarTodo();
-
+ 
+        
         if (pedidos.isEmpty()) {
             System.out.println("No hay pedidos registrados.");
             return;

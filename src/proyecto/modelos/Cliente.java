@@ -37,8 +37,8 @@ public class Cliente extends Usuario {
     public void agregarProducto(Producto p, int cantidad) { 
         carrito.agregarProducto(p, cantidad); 
     }
-    public void eliminarProducto(Producto p, int cantidad) { 
-        carrito.eliminarProducto(p,cantidad);
+    public void eliminarProducto(Producto p) { 
+        carrito.eliminarProducto(p);
     }
     
     public void mostrarInfo() {

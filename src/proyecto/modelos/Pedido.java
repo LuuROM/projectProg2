@@ -77,6 +77,10 @@ public class Pedido extends EntidadBase {
     public void mostrarInfo() {
         System.out.println("================================");
         System.out.println("Pedido ID: " + getId());
+        System.out.println("Productos: ");
+        for (Producto p : productos) {
+            System.out.println("- " + p.getNombre() + " de " + p.getMaterial() + " " + p.getColor() + " (" + p.getStock() + ")");;
+        }
         System.out.println("Total: " + getTotal());
         System.out.println("Cliente: " + getUsuario().getNombre() + " " + getUsuario().getApellido());
         System.out.println("Método de pago: " + getMetodoDePago());

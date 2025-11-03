@@ -85,6 +85,17 @@ public class ConexionDB {
                     + "FOREIGN KEY(usuario_id) REFERENCES Usuarios(usuario_id)"
                     + ");";
             st.execute(sql_pedidos);
+            
+            //Tabla intermedia (muchos a muchos)
+            String sql_pedido_producto = "CREATE TABLE IF NOT EXISTS pedido_producto ("
+                   + "pedido_id INTEGER,"
+                   + "producto_id INTEGER,"
+                   + "cantidad INTEGER,"
+                   + "PRIMARY KEY(pedido_id, producto_id),"
+                   + "FOREIGN KEY(pedido_id) REFERENCES Pedidos(id),"
+                   + "FOREIGN KEY(producto_id) REFERENCES Producto(id)"
+                   + ");";
+            st.execute(sql_pedido_producto);
         }
     }
 }

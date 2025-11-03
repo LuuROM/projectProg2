@@ -23,7 +23,7 @@ public class CarritoDeCompra {
         productos.add(nuevoP);
     }
 
-    public void eliminarProducto(Producto p, int cantidad) {
+    public void eliminarProducto(Producto p) {
         productos.remove(p);
     }
     
@@ -33,8 +33,10 @@ public class CarritoDeCompra {
             return;
         }
         System.out.println("=== Productos en el Carrito ===");
+        int item = 0;
         for (Producto p : productos) {
-            System.out.println("- " + p.getNombre() + " " + p.getColor() + " de " + p.getMaterial() + " (" + p.getStock() + "x" + p.getPrecio() + ")"); 
+            item = item + 1;
+            System.out.println(item + " - " + p.getNombre() + " " + p.getColor() + " de " + p.getMaterial() + " (" + p.getStock() + "x" + p.getPrecio() + ")"); 
         }
         System.out.println("=============================");
     }
